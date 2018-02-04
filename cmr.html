@@ -1,0 +1,12 @@
+<video id="v" autoplay playsinline></video>
+<script>
+const video = document.getElementById("v")
+let medias = {audio:false, video:{}}
+let videoStream = navigator.mediaDevices.getUserMedia(medias)
+
+videoStream.then(function(stream){
+	video.srcObject=stream
+}).catch(function(err){
+	alert("NG")
+})            
+</script>
