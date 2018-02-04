@@ -13,7 +13,7 @@ video{
 <video id="v" autoplay playsinline></video>
 <script>
 const v = document.getElementById("v")
-let media = {audio:false, video:{}}
+let media = {audio:false, video:{facingMode:{exact:"environment"}}}
 let videoStream = navigator.mediaDevices.getUserMedia(media)
 
 videoStream.then(function(stream){
