@@ -18,7 +18,7 @@ let videoStream = navigator.mediaDevices.getUserMedia(media)
 
 videoStream.then(function(stream){
 	v.srcObject=stream
-	if(window.innerWidth<600) media.video.facingMode = {exact:"environment"}
+	media.video.facingMode = {exact:"environment"}
 }).catch(function(err){
 	alert("NG")
 })            
