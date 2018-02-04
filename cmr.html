@@ -14,7 +14,6 @@ video{
 <script>
 const v = document.getElementById("v")
 let media = {audio:false, video:{}}
-media.video.facingMode = {exact:"environment"}
 let videoStream = navigator.mediaDevices.getUserMedia(media)
 
 videoStream.then(function(stream){
