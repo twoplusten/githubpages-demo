@@ -3,8 +3,28 @@
 *{
 	margin:0; padding:0;
 }
+#b{
+	width:30vw;
+	height:30vw;
+	background-image:url(powerball.png);
+	background-size:400%;
+	position:absolute;
+	left:0; top:0;
+}
+#b{
+	animation-name:power;
+	animation-duration:150ms;
+	animation-timing-function:steps(4, end);
+	animation-iteration-count:infinite;
+	animation-direction:alternate;
+	background-position-x:0;
+}
+@keyframes power{
+	100%{background-position-x:-400%}
+}
 </style>
 
+<div id="b"></div>
 <video id="v" autoplay playsinline></video>
 <canvas id="c"></canvas>
 
@@ -26,11 +46,9 @@ videoStream.then(function(stream){
 function loaded(e){
 	cv.width = v.videoWidth
 	cv.height = v.videoHeight
-	
+
 	const ctx = cv.getContext("2d")
-	ctx.translate(c.width, 0);
-  ctx.scale(-1, 1);
-  
+
 	setInterval(function(e){
 		ctx.drawImage(v, 0, 0, cv.width, cv.height)
 		let px = ctx.getImageData(0, 0, cv.width, cv.height)
@@ -45,9 +63,9 @@ function loaded(e){
 				let b = d[id+2]
 				
 				let cl = Math.round(r*0.299 + g*0.587 + b*0.114)
-				d[id+0] = cl;
-				d[id+1] = cl;
-				d[id+2] = cl;
+				d[id+0] = cl
+				d[id+1] = cl
+				d[id+2] = cl
 			}
 		}
 		
@@ -55,52 +73,53 @@ function loaded(e){
 
 	}, 1000/30)
 	
+	ctx.translate(cv.width, 0)
+  ctx.scale(-1, 1)
 }
             
 </script>
 
 <!--
 
-しきい値 = 10;
-対象の色 = 対象の赤, 対象の緑, 対象の青;
+しきい値 = 10
+対象の色 = 対象の赤, 対象の緑, 対象の青
 
-横目標, 縦目標, ピクセル数;
+横目標, 縦目標, ピクセル数
 
-検出状態 = false;
+検出状態 = false
 
 for(ループ回数=0; ループ回数<幅*高; ループ回数++){
-  赤の差異 = abs(対象の赤 - 映像の赤);
-  緑の差異 = abs(対象の緑 - 映像の緑);
-  青の差異 = abs(対象の青 - 映像の青);
+  赤の差異 = abs(対象の赤 - 映像の赤)
+  緑の差異 = abs(対象の緑 - 映像の緑)
+  青の差異 = abs(対象の青 - 映像の青)
 
   if(赤の差異<しきい値 && 緑の差異<しきい値 && 青の差異<しきい値){
-    検出状態 = true;
+    検出状態 = true
 
-    横目標 += (ループ回数%幅);
-    縦目標 += (ループ回数/幅);
-    ピクセル数++;
-    
+    横目標 += (ループ回数%幅)
+    縦目標 += (ループ回数/幅)
+    ピクセル数++
   }
 }
 
 if(検出状態) {
-  x = 横目標 / ピクセル数;
-  y = 縦目標 / ピクセル数;
+  x = 横目標 / ピクセル数
+  y = 縦目標 / ピクセル数
   
-  横目標			= 0;
-  縦目標			= 0;
-  ピクセル数	= 0;
+  横目標			= 0
+  縦目標			= 0
+  ピクセル数	= 0
   
-  しきい値--;
-  if(しきい値 < 2) しきい値 = 2;
+  しきい値--
+  if(しきい値 < 2) しきい値 = 2
 
 }else{
 
-  しきい値++;
-  if(しきい値 > 25) しきい値 = 25;
+  しきい値++
+  if(しきい値 > 25) しきい値 = 25
 } 
 
-対象の色 = video.pixels[幅-Xマウス + Yマウス*幅];
+対象の色 = video.pixels[幅-Xマウス + Yマウス*幅]
 
 -->
 
