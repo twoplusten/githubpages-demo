@@ -1,0 +1,18 @@
+<meta name="viewport" content="width=device-width">
+<style>
+*{margin:0; padding:0}
+</style>
+
+<video id="v" autoplay playsinline></video>
+
+<script>
+var v						= document.getElementById("v")
+var media 			= {audio:false, video:{}}
+var videoStream = navigator.mediaDevices.getUserMedia(media)
+
+videoStream.then(function(stream){
+	v.srcObject=stream
+}).catch(function(err){
+	alert("NG")
+})
+</script>

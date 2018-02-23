@@ -3,13 +3,18 @@
 *{
 	margin:0; padding:0;
 }
+body{width:100vw; height:100vh; overflow-x:hidden}
+#b, #v, #c{
+	position:absolute;
+	left:0; top:0;
+	transform:scaleX(-1);
+}
 #b{
 	width:30vw;
 	height:30vw;
 	background-image:url(powerball.png);
 	background-size:400%;
-	position:absolute;
-	left:0; top:0;
+	z-index:2;
 }
 #b{
 	animation-name:power;
@@ -22,6 +27,13 @@
 @keyframes power{
 	100%{background-position-x:-400%}
 }
+
+#v{
+	width:100vw;
+	height:calc(100vw * (480 / 640));
+	z-index:1;
+}
+
 </style>
 
 <div id="b"></div>
@@ -29,13 +41,20 @@
 <canvas id="c"></canvas>
 
 <script>
-const v = document.getElementById("v")
-const cv = document.getElementById("c")
+let round = 10
+let targetColor = {r:255, g:0, b:0}
+let targetPixel = {x:0, y:0, amount:0}
+let status = false;
+
+const v		= document.getElementById("v")
+const cv	= document.getElementById("c")
+const b		= document.getElementById("b")
 
 let media = {audio:false, video:{}}
 let videoStream = navigator.mediaDevices.getUserMedia(media)
 
 v.addEventListener("loadedmetadata", loaded)
+v.addEventListener("click", pointColor)
 
 videoStream.then(function(stream){
 	v.srcObject=stream
@@ -43,40 +62,66 @@ videoStream.then(function(stream){
 	alert("NG")
 })
 
-function loaded(e){
-	cv.width = v.videoWidth
-	cv.height = v.videoHeight
+function pointColor(e){
+	//msdn.microsoft.com/ja-jp/library/jj203843
+	targetColor.r = (e.pageX*e.pageY)+0
+	targetColor.g = (e.pageX*e.pageY)+1
+	targetColor.b = (e.pageX*e.pageY)+2
+	
+	console.log(targetColor)
+}
 
-	const ctx = cv.getContext("2d")
+function loaded(e){
+	const ctx	= cv.getContext("2d")
+	cv.width	= v.getBoundingClientRect().width
+	cv.height	= v.getBoundingClientRect().height
+	let px, n
 
 	setInterval(function(e){
-		ctx.drawImage(v, 0, 0, cv.width, cv.height)
-		let px = ctx.getImageData(0, 0, cv.width, cv.height)
-		let d = px.data
+    ctx.drawImage(v, 0, 0, cv.width, cv.height)
+
+		px	= ctx.getImageData(0, 0, cv.width, cv.height)
 		
-		for(let i=0; i<cv.height; i++){
-			for(let j=0; j<cv.width; j++){
-				let id = (i*cv.width+j)*4
-				
-				let r = d[id+0]
-				let g = d[id+1]
-				let b = d[id+2]
-				
-				let cl = Math.round(r*0.299 + g*0.587 + b*0.114)
-				d[id+0] = cl
-				d[id+1] = cl
-				d[id+2] = cl
+		for(let i=0; i<cv.width*cv.height; i++){
+			let difR = Math.abs(targetColor.r - px.data[i+0])
+			let difG = Math.abs(targetColor.g - px.data[i+1])
+			let difB = Math.abs(targetColor.b - px.data[i+2])
+		
+			if(difR<round && difG<round && difB<round){
+				status = true
+				targetPixel.x += (targetPixel.amount%cv.width)
+				targetPixel.y += (targetPixel.amount/cv.width)
+				targetPixel.amount++
 			}
 		}
-		
-		ctx.putImageData(px, 0, 0, 0, 0, cv.width, cv.height)
 
-	}, 1000/30)
+	if(status){
+	  var x = targetPixel.x / targetPixel.amount
+	  var y = targetPixel.x / targetPixel.amount
+
+		targetColor.r = px.data[targetColor.r]
+		targetColor.g = px.data[targetColor.g]
+		targetColor.b = px.data[targetColor.b]
+
+	  targetPixel.x				= 0
+	  targetPixel.y				= 0
+	  targetPixel.amount	= 0
+	  
+	  round--
+	  if(round < 2) round = 2
 	
-	ctx.translate(cv.width, 0)
-  ctx.scale(-1, 1)
+	}else{
+	
+	  round++
+	  if(round > 25) round = 25
+	} 
+	
+	b.style.left	= x
+	b.style.top		= y
+	
+	}, 1000/30)
+
 }
-            
 </script>
 
 <!--
@@ -102,7 +147,7 @@ for(ループ回数=0; ループ回数<幅*高; ループ回数++){
   }
 }
 
-if(検出状態) {
+if(検出状態){
   x = 横目標 / ピクセル数
   y = 縦目標 / ピクセル数
   
@@ -122,18 +167,3 @@ if(検出状態) {
 対象の色 = video.pixels[幅-Xマウス + Yマウス*幅]
 
 -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
